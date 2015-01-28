@@ -2,10 +2,13 @@ defmodule Consul do
   require Logger
 
   @server "http://localhost:8500"
+  @api_version "v1"
   @datacenter "us-east-1-hub"
 
   def server, do: @server
   def datacenter, do: @datacenter
+  def api_version, do: @api_version
+  def base_uri, do: server <> "/" <> api_version
 
   @doc """
   Fetches and decodes JSON data from a Consul HTTP endpoint.
@@ -158,7 +161,7 @@ defmodule Consul do
 
 
     # Formats a Consul key and remote server into the full URL.
-    defp kv_endpoint(key), do: Consul.server <> "/v1/kv/" <> key
+    defp kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Enum.join("/")
     defp kv_endpoint(key, opts) do
       kv_endpoint(key) <> "?" <> Enum.join(opts, "&")
     end
@@ -169,7 +172,7 @@ defmodule Consul do
     @doc """
     Looks up the IP address of a node using consul.
     """
-    def address(node), do: "#{Consul.server}/v1/catalog/node/#{node}" |> _address
+    def address(node), do: "#{Consul.base_uri}/catalog/node/#{node}" |> _address
     def address(node, datacenter), do: "#{Consul.server}/v1/catalog/node/#{node}?dc=#{datacenter}" |> _address
     defp _address(url) do
       url |> Consul.get_json |> Dict.get("Node") |> Dict.get("Address")
