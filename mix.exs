@@ -4,8 +4,6 @@ defmodule Consul.Mixfile do
   def project do
     [app: :consul,
      version: "0.0.2",
-     deps_path: "../../deps",
-     lockfile: "../../mix.lock",
      elixir: "~> 1.0",
      deps: deps]
   end
