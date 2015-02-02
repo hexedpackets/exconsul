@@ -10,6 +10,25 @@ defmodule Consul do
   def api_version, do: @api_version
   def base_uri, do: server <> "/" <> api_version
 
+  defp catalog_uri(item), do: Consul.base_uri <> "/catalog/" <> item
+
+  @doc """
+  List all known datacenters.
+  """
+  def datacenters, do: catalog_uri("datacenters") |> get_json
+
+  @doc """
+  List all known nodes in a given datacenter. Returns a list of dicts,
+  with each dict containing a "Node" and "Address" key.
+  """
+  def nodes(dc \\ nil), do: catalog_uri("nodes") |> get_json(%{dc: dc})
+
+  @doc """
+  List all known services in a given datacenter. The result is a Dict keyed on
+  service name, and each value is a list of tags for that service.
+  """
+  def services(dc \\ nil), do: catalog_uri("services") |> get_json(%{dc: dc})
+
   @doc """
   Fetches and decodes JSON data from a Consul HTTP endpoint.
   """

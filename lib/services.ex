@@ -3,10 +3,9 @@ defmodule Consul.Services do
   defp health_state_url(state), do: Consul.base_uri <> "/health/state/" <> state
 
   @doc """
-  Returns all available services in the Consul datacenter. The result is a Dict keyed on
-  service name, and each value is a list of tags for that service.
+  Returns all available services in the Consul datacenter.
   """
-  def list(datacenter \\ nil), do: Consul.base_uri <> "/catalog/services" |> Consul.get_json(%{dc: datacenter})
+  def list(datacenter \\ nil), do: Consul.services(datacenter) |> Dict.keys
 
   @doc """
   Returns information about a service. The health endpoint is used as it returns much more detailed information

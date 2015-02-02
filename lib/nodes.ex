@@ -2,6 +2,11 @@ defmodule Consul.Nodes do
   defp node_url(node), do: Consul.base_uri <> "/catalog/node/" <> node
 
   @doc """
+  List all known nodes in a given datacenter. Returns a list of node names.
+  """
+  def list(datacenter \\ nil), do: Consul.nodes(datacenter) |> Enum.map(&(&1["Node"]))
+
+  @doc """
   Looks up the IP address of a node using consul.
   """
   def address(node), do: node_url(node) |> _address(%{})
