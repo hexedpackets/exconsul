@@ -1,5 +1,6 @@
 defmodule Consul.Services do
-  defp service_url(service), do: Consul.base_uri <> "/catalog/service/" <> service
+  defp service_url(service), do: Consul.base_uri <> "/health/service/" <> service
+  defp health_state_url(state), do: Consul.base_uri <> "/health/state/" <> state
 
   @doc """
   Returns all available services in the Consul datacenter. The result is a Dict keyed on
@@ -7,6 +8,10 @@ defmodule Consul.Services do
   """
   def list(datacenter \\ nil), do: Consul.base_uri <> "/catalog/services" |> Consul.get_json(%{dc: datacenter})
 
+  @doc """
+  Returns information about a service. The health endpoint is used as it returns much more detailed information
+  than the catalog without losing anything.
+  """
   def info(service, datacenter \\ nil), do: service_url(service) |> Consul.get_json(%{dc: datacenter})
 
   @doc """
@@ -36,4 +41,11 @@ defmodule Consul.Services do
   defp health_filter(service, status \\ "passing") do
     Enum.all?(service["Checks"], &(&1["Status"] == status))
   end
+
+  @doc """
+  Returns all checks in the passed in state.
+  The supported states are "any", "unknown", "passing", "warning", or "critical".
+  The "any" state is a wildcard that can be used to return all the checks.
+  """
+  def health(state, datacenter \\ nil), do: health_state_url(state) |> Consul.get_json(%{dc: datacenter})
 end

@@ -11,6 +11,16 @@ defmodule Consul.Nodes do
   end
 
   def info(node, datacenter \\ nil) do
-    node_url(node) |> Consul.get_json(%{dc: datacenter})
+    health_data = health(node, datacenter)
+    node_url(node)
+        |> Consul.get_json(%{dc: datacenter})
+        |> Dict.put("Health", health_data)
+  end
+
+  @doc """
+  Returns the health info of a node.
+  """
+  def health(node, datacenter \\ nil) do
+    Consul.base_uri <> "/health/node/" <> node |> Consul.get_json(%{dc: datacenter})
   end
 end
