@@ -10,8 +10,8 @@ defmodule Consul.KV do
   """
   def docker_credentials(datacenter \\ Consul.datacenter) do
     "secrets/docker"
-        |> kv_endpoint([:raw, "dc=#{datacenter}"])
-        |> Consul.get_json
+        |> kv_endpoint
+        |> Consul.get_json(%{dc: datacenter, raw: nil})
   end
 
   def key_name(name), do: String.replace(name, "-", "/")
@@ -25,17 +25,20 @@ defmodule Consul.KV do
   Returns:
     A dict of the matching keys to their configuration.
   """
-  def get_conf(key) do
-    kv_endpoint(key) |> _get_conf(key) |> Dict.values |> List.first
+  def get_conf(key), do: get_conf(key, nil)
+  def get_conf(key, :recurse), do: get_conf(key, :recurse, nil)
+
+  def get_conf(key, datacenter) do
+    kv_endpoint(key) |> _get_conf(key, %{dc: datacenter}) |> Dict.values |> List.first
   end
 
-  def get_conf(key, :recurse) do
-    kv_endpoint(key, [:recurse]) |> _get_conf(key)
+  def get_conf(key, :recurse, datacenter) do
+    kv_endpoint(key) |> _get_conf(key, %{dc: datacenter, recurse: nil})
   end
 
-  defp _get_conf(endpoint, key) do
+  defp _get_conf(endpoint, key, opts) do
     endpoint
-        |> Consul.get_json
+        |> Consul.get_json(opts)
         |> Enum.filter(&(&1["Key"] == key || String.starts_with?(&1["Key"], key <> "/")))
         |> Enum.map(&({&1["Key"], decode_value(&1["Value"], Docker.Config)}))
         |> Enum.into %{}
@@ -64,30 +67,30 @@ defmodule Consul.KV do
   Adds a value to an existing kv, or sets the initial value.
   This assumes the value is stored as a newline-separated set.
   """
-  def append(values, key) do
+  def append(values, key, datacenter \\ Consul.datacenter) do
     Logger.info("Appending to #{key}")
     url = kv_endpoint(key)
-    _append(values, url, 0)
+    _append(values, url, %{dc: datacenter}, 0)
   end
 
-  defp _append([], _, _), do: :ok
-  defp _append(values, url, index) do
+  defp _append([], _url, _args, _index), do: :ok
+  defp _append(values, url, args, index) do
     data = Enum.join(values, "\n")
-    url <> "?cas=#{index}"
+    url <> "?" <> URI.encode_query([cas: index, dc: args.datacenter])
         |> HTTPoison.put!(data)
-        |> check_append(values, url)
+        |> check_append(values, url, args)
   end
 
-  defp check_append(%{body: "true"}, _, _), do: :ok
-  defp check_append(%{body: "false"}, values, url) do
+  defp check_append(%{body: "true"}, _values, _url, _args), do: :ok
+  defp check_append(%{body: "false"}, values, url, args) do
     Logger.debug("Unable to append values at #{url}")
-    {index, current_values} = check_key(url)
+    {index, current_values} = check_key(url, args)
     Set.union(Enum.into(current_values, HashSet.new), Enum.into(values, HashSet.new))
-        |> _append(url, index)
+        |> _append(url, args, index)
   end
 
-  defp check_key(url) do
-    body = Consul.get_json(url) |> List.first
+  defp check_key(url, args) do
+    body = Consul.get_json(url, args) |> List.first
     index = body["ModifyIndex"]
     values = :base64.decode(body["Value"]) |> String.split("\n")
     {index, values}
@@ -102,10 +105,10 @@ defmodule Consul.KV do
   Returns:
     The loaded JSON information about the service.
   """
-  def service_info(name, subkey) do
+  def service_info(name, subkey, datacenter \\ nil) do
     "services/#{name}/#{subkey}"
-        |> kv_endpoint([:raw])
-        |> Consul.get_json
+        |> kv_endpoint
+        |> Consul.get_json(%{dc: datacenter, raw: nil})
   end
 
   @doc """
@@ -116,22 +119,17 @@ defmodule Consul.KV do
   Returns:
     A dictionary created recursively from the kv store.
   """
-  def tree(key), do: _tree(key, [:recurse])
-  def tree(key, datacenter), do: _tree(key, [:recurse, "dc=#{datacenter}"])
-  defp _tree(key, opts) do
+  def tree(key, datacenter \\ nil), do: _tree(key, %{recurse: nil, dc: datacenter})
+  defp _tree(key, args) do
     prefix = key <> "/"
-    kv_endpoint(key, opts)
-        |> Consul.get_json
+    kv_endpoint(key)
+        |> Consul.get_json(args)
         |> Enum.filter(&(&1["Key"] != prefix && &1["Value"] != ""))
         |> Enum.map(&({String.replace(&1["Key"], prefix, ""), decode_value(&1["Value"])}))
         |> Enum.into %{}
   end
 
 
-
   # Formats a Consul key and remote server into the full URL.
   defp kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Enum.join("/")
-  defp kv_endpoint(key, opts) do
-    kv_endpoint(key) <> "?" <> Enum.join(opts, "&")
-  end
 end

@@ -13,8 +13,12 @@ defmodule Consul do
   @doc """
   Fetches and decodes JSON data from a Consul HTTP endpoint.
   """
-  def get_json(url) do
-    url |> HTTPoison.get! |> decode_body
+  def get_json(url), do: get_json(url, %{})
+  def get_json(url, args = %{dc: nil}), do: get_json(url, %{args | dc: datacenter})
+  def get_json(url, args) do
+    url <> "?" <> URI.encode_query(args)
+        |> HTTPoison.get!
+        |> decode_body
   end
 
   # Decodes JSON data from a HTTP response.
