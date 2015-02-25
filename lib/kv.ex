@@ -2,7 +2,8 @@ defmodule Consul.KV do
   require Logger
 
   def set(value, key) do
-    kv_endpoint(key) |> HTTPoison.put!(value) |> Dict.get(:body)
+    %HTTPoison.Response{body: body} = kv_endpoint(key) |> HTTPoison.put!(value)
+    body
   end
 
   @doc """
@@ -131,5 +132,5 @@ defmodule Consul.KV do
 
 
   # Formats a Consul key and remote server into the full URL.
-  defp kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Enum.join("/")
+  defp kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Path.join
 end
