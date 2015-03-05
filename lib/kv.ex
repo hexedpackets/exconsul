@@ -132,5 +132,5 @@ defmodule Consul.KV do
 
 
   # Formats a Consul key and remote server into the full URL.
-  defp kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Path.join
+  def kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Path.join
 end
