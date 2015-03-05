@@ -45,7 +45,7 @@ defmodule Consul.KV do
         |> Enum.into %{}
   end
 
-  defp decode_value(value, type \\ %{}) do
+  def decode_value(value, type \\ %{}) do
     b64decoded = :base64.decode(value)
     case Poison.decode(b64decoded, as: type) do
       {:ok, value} -> value
