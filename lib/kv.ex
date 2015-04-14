@@ -9,10 +9,10 @@ defmodule Consul.KV do
   @doc """
   Returns the credentials stored in consul for accessing the docker registry.
   """
-  def docker_credentials(datacenter \\ Consul.datacenter) do
-    "secrets/docker"
+  def docker_credentials(registry) do
+    "secrets/docker/" <> registry
         |> kv_endpoint
-        |> Consul.get_json(%{dc: datacenter, raw: nil})
+        |> Consul.get_json(%{dc: Consul.datacenter, raw: nil})
   end
 
   def key_name(name), do: String.replace(name, "-", "/")

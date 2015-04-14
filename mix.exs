@@ -3,7 +3,7 @@ defmodule Consul.Mixfile do
 
   def project do
     [app: :consul,
-     version: "0.0.8",
+     version: "0.0.9",
      elixir: "~> 1.0",
      deps: deps]
   end
