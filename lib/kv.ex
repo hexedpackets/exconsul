@@ -68,7 +68,7 @@ defmodule Consul.KV do
   Adds a value to an existing kv, or sets the initial value.
   This assumes the value is stored as a newline-separated set.
   """
-  def append(values, key, datacenter \\ Consul.datacenter) do
+  def append(values, key, datacenter \\ nil) do
     Logger.info("Appending to #{key}")
     url = kv_endpoint(key)
     _append(values, url, %{dc: datacenter}, 0)
@@ -77,7 +77,7 @@ defmodule Consul.KV do
   defp _append([], _url, _args, _index), do: :ok
   defp _append(values, url, args, index) do
     data = Enum.join(values, "\n")
-    url <> "?" <> URI.encode_query([cas: index, dc: args.datacenter])
+    url <> "?" <> URI.encode_query([cas: index, dc: args.dc])
         |> HTTPoison.put!(data)
         |> check_append(values, url, args)
   end
