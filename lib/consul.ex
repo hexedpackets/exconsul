@@ -33,7 +33,7 @@ defmodule Consul do
   Fetches and decodes JSON data from a Consul HTTP endpoint.
   """
   def get_json(url), do: get_json(url, %{})
-  def get_json(url, args = %{dc: nil}), do: get_json(url, %{args | dc: datacenter})
+  def get_json(url, args = %{dc: nil}), do: get_json(url, Dict.delete(args, :dc))
   def get_json(url, args) do
     url <> "?" <> URI.encode_query(args)
         |> HTTPoison.get!
