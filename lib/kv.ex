@@ -45,7 +45,13 @@ defmodule Consul.KV do
         |> Enum.into %{}
   end
 
-  def decode_value(value, type \\ %{}) do
+  @doc """
+  Takes a value as returned by Consul (base-64 encoded) and decodes it.
+  If the data looks JSON-y, the JSON data will also be decoded.
+  """
+  def decode_value(value), do: decode_value(value, %{})
+  def decode_value(nil, _type), do: nil
+  def decode_value(value, type) do
     b64decoded = :base64.decode(value)
     case Poison.decode(b64decoded, as: type) do
       {:ok, value} -> value
