@@ -1,5 +1,5 @@
 defmodule Consul.Services do
-  defp service_url(service), do: Consul.base_uri <> "/health/service/" <> service
+  defp service_health_url(service), do: Consul.base_uri <> "/health/service/" <> service
   defp health_state_url(state), do: Consul.base_uri <> "/health/state/" <> state
 
   @doc """
@@ -11,7 +11,7 @@ defmodule Consul.Services do
   Returns information about a service. The health endpoint is used as it returns much more detailed information
   than the catalog without losing anything.
   """
-  def info(service, datacenter \\ nil), do: service_url(service) |> Consul.get_json(%{dc: datacenter})
+  def info(service, datacenter \\ nil), do: service_health_url(service) |> Consul.get_json(%{dc: datacenter})
 
   @doc """
   Looks up healthy nodes running a particular service
@@ -19,10 +19,10 @@ defmodule Consul.Services do
   def nodes(service, :passing), do: nodes(service, :passing, nil)
   def nodes(service, :passing, datacenter) do
     Consul.base_uri <> "/health/service/" <> service
-        |> Consul.get_json(%{dc: datacenter})
-        |> Enum.filter(&health_filter/1)
-        |> Enum.map(&(&1["Node"]["Node"]))
-        |> Enum.uniq
+    |> Consul.get_json(%{dc: datacenter})
+    |> Enum.filter(&health_filter/1)
+    |> Enum.map(&(&1["Node"]["Node"]))
+    |> Enum.uniq
   end
 
   @doc """
@@ -30,10 +30,10 @@ defmodule Consul.Services do
   """
   def nodes(service), do: nodes(service, nil)
   def nodes(service, datacenter) do
-    service_url(service)
-        |> Consul.get_json(%{dc: datacenter})
-        |> Enum.map(&(&1["Node"]))
-        |> Enum.uniq
+    service_health_url(service)
+    |> Consul.get_json(%{dc: datacenter})
+    |> Enum.map(&(&1["Node"]))
+    |> Enum.uniq
   end
 
 
