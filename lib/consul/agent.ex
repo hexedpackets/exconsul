@@ -6,7 +6,23 @@ defmodule Consul.Agent do
   """
   require Logger
 
-  @maintenance_message "Maintenance mode is enabled for this service, but no reason was provided. This is a default message."
+  @doc """
+  Finds all service IDs for a given service name. A given service can be
+  running multiple times on the agent with different IDs.
+  """
+  def service_ids(service) do
+    services
+    |> Stream.filter(fn({_id, %{"Service" => name}}) -> name == service end)
+    |> Enum.map(fn({id, _}) -> id end)
+  end
+
+  @doc """
+  Finds all services running on this agent.
+  """
+  def services do
+    base_url <> "/services"
+    |> Consul.get_json
+  end
 
   @doc """
   Enables maintenance mode for a service by setting a failing health check
@@ -34,5 +50,5 @@ defmodule Consul.Agent do
 
   defp base_url, do: Consul.base_uri <> "/agent"
   defp service_url, do: base_url <> "/service"
-  def maintenance_url(service), do: service_url <> "/maintenance/" <> service
+  defp maintenance_url(service), do: service_url <> "/maintenance/" <> service
 end
