@@ -18,7 +18,7 @@ defmodule Consul.Services do
   """
   def nodes(service, :passing), do: nodes(service, :passing, nil)
   def nodes(service, :passing, datacenter) do
-    Consul.base_uri <> "/health/service/" <> service
+    service_health_url(service)
     |> Consul.get_json(%{dc: datacenter})
     |> Enum.filter(&health_filter/1)
     |> Enum.map(&(&1["Node"]["Node"]))
@@ -30,9 +30,11 @@ defmodule Consul.Services do
   """
   def nodes(service), do: nodes(service, nil)
   def nodes(service, datacenter) do
-    service_health_url(service)
-    |> Consul.get_json(%{dc: datacenter})
-    |> Enum.map(&(&1["Node"]))
+    Consul.Services.list()
+    |> Stream.filter_map(fn(name) -> String.starts_with? name, service end, &service_health_url/1)
+    |> Enum.map(&(Consul.get_json(&1, %{dc: datacenter})))
+    |> List.flatten
+    |> Enum.map(&(%{"Node" => &1["Node"]["Node"], "Service" => &1["Service"]["Service"]}))
     |> Enum.uniq
   end
 
