@@ -4,6 +4,21 @@ Consul
 A wrapper around [the consul API](www.consul.io/docs/agent/http.html). Contains many convenience functions for working with the KV store.
 
 
+### Installation
+Add Consul as a dependency in your mix.exs file
+
+```elixir
+def application do
+  [applications: [:consul]]
+end
+
+defp deps do
+  [
+    {:consul, github: "hexedpackets/exconsul"}
+  ]
+end
+```
+
 ### Configuration
 There are two values that can be set to configure this library:
 
