@@ -3,8 +3,8 @@ defmodule Consul do
 
   @api_version "v1"
 
-  def server, do: Application.get_env(:consul, :server)
-  def datacenter, do: Application.get_env(:consul, :datacenter)
+  def server, do: Application.get_env(:consul, :server) || "http://localhost:8500"
+  def datacenter, do: Application.get_env(:consul, :datacenter) || "dc1"
   def api_version, do: @api_version
   def base_uri, do: server <> "/" <> api_version
 
