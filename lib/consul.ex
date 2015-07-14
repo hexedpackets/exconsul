@@ -1,12 +1,10 @@
 defmodule Consul do
   require Logger
 
-  @server "http://localhost:8500"
   @api_version "v1"
-  @datacenter "us-east-1-hub"
 
-  def server, do: @server
-  def datacenter, do: @datacenter
+  def server, do: Application.get_env(:consul, :server)
+  def datacenter, do: Application.get_env(:consul, :datacenter)
   def api_version, do: @api_version
   def base_uri, do: server <> "/" <> api_version
 
