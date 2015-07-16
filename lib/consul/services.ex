@@ -30,7 +30,7 @@ defmodule Consul.Services do
   """
   def nodes(service), do: nodes(service, nil)
   def nodes(service, datacenter) do
-    Consul.Services.list()
+    Consul.Services.list(datacenter)
     |> Stream.filter_map(fn(name) -> String.starts_with? name, service end, &service_health_url/1)
     |> Enum.map(&(Consul.get_json(&1, %{dc: datacenter})))
     |> List.flatten
