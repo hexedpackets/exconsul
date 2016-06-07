@@ -4,25 +4,22 @@ defmodule Consul.KV do
   @doc """
   Sets a key to the given value. Returns true if successful.
   """
-  def set(value, key) do
-    %HTTPoison.Response{body: body} = kv_endpoint(key) |> Consul.put(value)
-    body
+  def set(value, key, args \\ %{}) do
+    kv_endpoint(key) |> Consul.put(value, args)
   end
 
   @doc """
   Deletes a key.
   """
   def delete(key) do
-    %HTTPoison.Response{body: body} = kv_endpoint(key) |> Consul.delete
-    body
+    kv_endpoint(key) |> Consul.delete
   end
 
   @doc """
   Deletes all keys that start with a given prefix.
   """
   def delete(key, :recurse) do
-    %HTTPoison.Response{body: body} = kv_endpoint(key) |> Consul.delete(%{recurse: nil})
-    body
+    kv_endpoint(key) |> Consul.delete(%{recurse: nil})
   end
 
   @doc """
@@ -107,8 +104,8 @@ defmodule Consul.KV do
     |> check_append(values, url, args)
   end
 
-  defp check_append(%{body: "true"}, _values, _url, _args), do: :ok
-  defp check_append(%{body: "false"}, values, url, args) do
+  defp check_append("true", _values, _url, _args), do: :ok
+  defp check_append("false", values, url, args) do
     Logger.debug("Unable to append values at #{url}")
     {index, current_values} = check_key(url, args)
 

@@ -39,19 +39,22 @@ defmodule Consul do
   def get(url), do: get(url, %{})
   def get(url, args = %{dc: nil}), do: get(url, Dict.delete(args, :dc))
   def get(url, args) do
-    url <> "?" <> URI.encode_query(args)
+    %HTTPoison.Response{body: body} = url <> "?" <> URI.encode_query(args)
     |> HTTPoison.get!
+    body
   end
 
   @doc """
   Sends a HTTP PUT request to Consul with any configured authentication.
   """
   def put(url), do: put(url, "", [])
-  def put(url, value), do: put(url, "", [])
-  def put(url, value, args) do
+  def put(url, data), do: put(url, data, [])
+  def put(url, data = %{}, args), do: put(url, Poison.encode!(data), args)
+  def put(url, data, args) when is_binary(data) do
     args = args_to_query(args)
-    url <> "?" <> args
-    |> HTTPoison.put!(value)
+    %HTTPoison.Response{body: body} = url <> "?" <> args
+    |> HTTPoison.put!(data)
+    body
   end
 
   @doc """
@@ -60,8 +63,9 @@ defmodule Consul do
   def delete(url), do: delete(url, [])
   def delete(url, args) do
     args = args_to_query(args)
-    url <> "?" <> args
+    %HTTPoison.Response{body: body} = url <> "?" <> args
     |> HTTPoison.delete!
+    body
   end
 
   @doc """
@@ -73,11 +77,13 @@ defmodule Consul do
       nil -> %{}
       token -> %{token: token}
     end
-    args = args |> Dict.merge(token) |> URI.encode_query
+    args |> Dict.merge(token) |> URI.encode_query
   end
 
-  # Decodes JSON data from a HTTP response.
-  defp decode_body(%{body: body}) do
+  @doc """
+  Decodes JSON data from a HTTP response.
+  """
+  def decode_body(body) do
     Logger.debug "Successful response: #{inspect body}"
     body |> Poison.decode |> handle_json_decode(body)
   end
