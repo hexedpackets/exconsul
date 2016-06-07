@@ -43,6 +43,16 @@ defmodule Consul do
     |> HTTPoison.get!
   end
 
+  @doc """
+  Sends a HTTP PUT request to Consul with any configured authentication.
+  """
+  def put(url), do: put(url, "", [])
+  def put(url, value), do: put(url, "", [])
+  def put(url, value, args) do
+    url <> "?" <> URI.encode_query(args)
+    |> HTTPoison.put!(value)
+  end
+
   # Decodes JSON data from a HTTP response.
   defp decode_body(%{body: body}) do
     Logger.debug "Successful response: #{inspect body}"

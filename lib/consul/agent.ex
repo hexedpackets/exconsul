@@ -30,13 +30,13 @@ defmodule Consul.Agent do
   """
   def service_maint_enable(service) do
     Logger.info "Enabling maintenance mode for #{service}"
-    maintenance_url(service) <> "?" <> URI.encode_query(%{enable: true})
-    |> HTTPoison.put!("")
+    maintenance_url(service)
+    |> Consul.put("", %{enable: true})
   end
   def service_maint_enable(service, reason) do
     Logger.info "Enabling maintenance mode for #{service}: #{reason}"
-    maintenance_url(service) <> "?" <> URI.encode_query(%{enable: true, reason: reason})
-    |> HTTPoison.put!("")
+    maintenance_url(service)
+    |> Consul.put("", %{enable: true, reason: reason})
   end
 
   @doc """
@@ -44,8 +44,8 @@ defmodule Consul.Agent do
   """
   def service_maint_disable(service) do
     Logger.info "Disabling maintenance mode for #{service}"
-    maintenance_url(service) <> "?" <> URI.encode_query(%{enable: false})
-    |> HTTPoison.put!("")
+    maintenance_url(service)
+    |> Consul.put("", %{enable: false})
   end
 
   defp base_url, do: Consul.base_uri <> "/agent"

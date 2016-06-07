@@ -2,7 +2,7 @@ defmodule Consul.KV do
   require Logger
 
   def set(value, key) do
-    %HTTPoison.Response{body: body} = kv_endpoint(key) |> HTTPoison.put!(value)
+    %HTTPoison.Response{body: body} = kv_endpoint(key) |> Consul.put(value)
     body
   end
 
@@ -83,8 +83,8 @@ defmodule Consul.KV do
   defp _append([], _url, _args, _index), do: :ok
   defp _append(values, url, args, index) do
     data = Enum.join(values, "\n")
-    url <> "?" <> URI.encode_query([cas: index, dc: args.dc])
-    |> HTTPoison.put!(data)
+
+    Consul.put(url, data, [cas: index, dc: args.dc])
     |> check_append(values, url, args)
   end
 
