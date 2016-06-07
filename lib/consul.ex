@@ -49,8 +49,21 @@ defmodule Consul do
   def put(url), do: put(url, "", [])
   def put(url, value), do: put(url, "", [])
   def put(url, value, args) do
-    url <> "?" <> URI.encode_query(args)
+    args = args_to_query(args)
+    url <> "?" <> args
     |> HTTPoison.put!(value)
+  end
+
+  @doc """
+  Takes a dictionary of query arguments, adds in an authentication token if configured,
+  and encodes everything as a URI query.
+  """
+  def args_to_query(args) do
+    token = case Application.get_env(:consul, :token) do
+      nil -> %{}
+      token -> %{token: token}
+    end
+    args = args |> Dict.merge(token) |> URI.encode_query
   end
 
   # Decodes JSON data from a HTTP response.

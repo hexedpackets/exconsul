@@ -42,7 +42,7 @@ defmodule Consul.KV do
     |> Consul.get_json(opts)
     |> Enum.filter(&(&1["Key"] == key || String.starts_with?(&1["Key"], key <> "/")))
     |> Enum.map(&({&1["Key"], decode_value(&1["Value"], Docker.Config)}))
-    |> Enum.into %{}
+    |> Enum.into(%{})
   end
 
   @doc """
@@ -134,7 +134,7 @@ defmodule Consul.KV do
     |> Consul.get_json(args)
     |> Enum.filter(&(&1["Key"] != prefix && &1["Value"] != ""))
     |> Enum.map(&({String.replace(&1["Key"], prefix, ""), decode_value(&1["Value"])}))
-    |> Enum.into %{}
+    |> Enum.into(%{})
   end
 
 
