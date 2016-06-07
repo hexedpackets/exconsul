@@ -18,8 +18,8 @@ defmodule Consul.Nodes do
   def info(node, datacenter \\ nil) do
     health_data = health(node, datacenter)
     node_url(node)
-        |> Consul.get_json(%{dc: datacenter})
-        |> Dict.put("Health", health_data)
+    |> Consul.get_json(%{dc: datacenter})
+    |> Dict.put("Health", health_data)
   end
 
   @doc """

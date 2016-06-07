@@ -1,5 +1,5 @@
-%{"hackney": {:hex, :hackney, "1.0.6"},
-  "httpoison": {:hex, :httpoison, "0.6.0"},
-  "idna": {:hex, :idna, "1.0.2"},
-  "poison": {:hex, :poison, "1.3.1"},
-  "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.1"}}
+%{"hackney": {:hex, :hackney, "1.0.6", "edfabd6f03d7bb2aa224a438b2bd6295faf6df5fd3aeafad7a78cdae41252cde", [:make, :rebar], [{:ssl_verify_hostname, "1.0.1", [hex: :ssl_verify_hostname, optional: false]}, {:idna, "1.0.2", [hex: :idna, optional: false]}]},
+  "httpoison": {:hex, :httpoison, "0.6.0", "a6df1649a663ec0e568298b0080e349bc230947b40432a201d59d4fd2e5865ec", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, optional: false]}]},
+  "idna": {:hex, :idna, "1.0.2", "397e3d001c002319da75759b0a81156bf11849c71d565162436d50020cb7265e", [:make], []},
+  "poison": {:hex, :poison, "1.3.1", "5df7a442df825ebd2e3ebb29a2e17f6ae01d1cd34a5bfcb6c82f32177d4cf130", [:mix], []},
+  "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.1", "e6ef428c350d1b7e9c534c0929caae1ecb47c22f88cbbb880e07e46918380cc5", [:make], []}}

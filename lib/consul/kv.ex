@@ -11,8 +11,8 @@ defmodule Consul.KV do
   """
   def docker_credentials(registry) do
     "secrets/docker/" <> registry
-        |> kv_endpoint
-        |> Consul.get_json(%{dc: Consul.datacenter, raw: nil})
+    |> kv_endpoint
+    |> Consul.get_json(%{dc: Consul.datacenter, raw: nil})
   end
 
   def key_name(name), do: String.replace(name, "-", "/")
@@ -39,10 +39,10 @@ defmodule Consul.KV do
 
   defp _get_conf(endpoint, key, opts) do
     endpoint
-        |> Consul.get_json(opts)
-        |> Enum.filter(&(&1["Key"] == key || String.starts_with?(&1["Key"], key <> "/")))
-        |> Enum.map(&({&1["Key"], decode_value(&1["Value"], Docker.Config)}))
-        |> Enum.into %{}
+    |> Consul.get_json(opts)
+    |> Enum.filter(&(&1["Key"] == key || String.starts_with?(&1["Key"], key <> "/")))
+    |> Enum.map(&({&1["Key"], decode_value(&1["Value"], Docker.Config)}))
+    |> Enum.into %{}
   end
 
   @doc """
@@ -84,16 +84,17 @@ defmodule Consul.KV do
   defp _append(values, url, args, index) do
     data = Enum.join(values, "\n")
     url <> "?" <> URI.encode_query([cas: index, dc: args.dc])
-        |> HTTPoison.put!(data)
-        |> check_append(values, url, args)
+    |> HTTPoison.put!(data)
+    |> check_append(values, url, args)
   end
 
   defp check_append(%{body: "true"}, _values, _url, _args), do: :ok
   defp check_append(%{body: "false"}, values, url, args) do
     Logger.debug("Unable to append values at #{url}")
     {index, current_values} = check_key(url, args)
+
     Set.union(Enum.into(current_values, HashSet.new), Enum.into(values, HashSet.new))
-        |> _append(url, args, index)
+    |> _append(url, args, index)
   end
 
   defp check_key(url, args) do
@@ -114,8 +115,8 @@ defmodule Consul.KV do
   """
   def service_info(name, subkey, datacenter \\ nil) do
     "services/#{name}/#{subkey}"
-        |> kv_endpoint
-        |> Consul.get_json(%{dc: datacenter, raw: nil})
+    |> kv_endpoint
+    |> Consul.get_json(%{dc: datacenter, raw: nil})
   end
 
   @doc """
@@ -130,10 +131,10 @@ defmodule Consul.KV do
   defp _tree(key, args) do
     prefix = key <> "/"
     kv_endpoint(key)
-        |> Consul.get_json(args)
-        |> Enum.filter(&(&1["Key"] != prefix && &1["Value"] != ""))
-        |> Enum.map(&({String.replace(&1["Key"], prefix, ""), decode_value(&1["Value"])}))
-        |> Enum.into %{}
+    |> Consul.get_json(args)
+    |> Enum.filter(&(&1["Key"] != prefix && &1["Value"] != ""))
+    |> Enum.map(&({String.replace(&1["Key"], prefix, ""), decode_value(&1["Value"])}))
+    |> Enum.into %{}
   end
 
 
