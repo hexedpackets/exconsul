@@ -55,6 +55,16 @@ defmodule Consul do
   end
 
   @doc """
+  Sends a HTTP DELETE request to Consul with any configured authentication.
+  """
+  def delete(url), do: delete(url, [])
+  def delete(url, args) do
+    args = args_to_query(args)
+    url <> "?" <> args
+    |> HTTPoison.delete!
+  end
+
+  @doc """
   Takes a dictionary of query arguments, adds in an authentication token if configured,
   and encodes everything as a URI query.
   """

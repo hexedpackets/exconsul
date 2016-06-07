@@ -1,8 +1,27 @@
 defmodule Consul.KV do
   require Logger
 
+  @doc """
+  Sets a key to the given value. Returns true if successful.
+  """
   def set(value, key) do
     %HTTPoison.Response{body: body} = kv_endpoint(key) |> Consul.put(value)
+    body
+  end
+
+  @doc """
+  Deletes a key.
+  """
+  def delete(key) do
+    %HTTPoison.Response{body: body} = kv_endpoint(key) |> Consul.delete
+    body
+  end
+
+  @doc """
+  Deletes all keys that start with a given prefix.
+  """
+  def delete(key, :recurse) do
+    %HTTPoison.Response{body: body} = kv_endpoint(key) |> Consul.delete(%{recurse: nil})
     body
   end
 
