@@ -178,6 +178,17 @@ defmodule Consul.KV do
     |> Enum.into(%{})
   end
 
+  @doc """
+  List the keys under a given prefix.
+  """
+  def keys(prefix), do: keys(prefix, %{})
+  def keys(prefix, sep) when is_binary(sep), do: keys(prefix, %{seperator: sep})
+  def keys(prefix, args) do
+    args = Dict.put(args, :keys, nil)
+    kv_endpoint(prefix) <> "/"
+    |> Consul.get_json(args)
+  end
+
 
   # Formats a Consul key and remote server into the full URL.
   def kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Path.join
