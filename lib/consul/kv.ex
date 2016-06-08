@@ -165,8 +165,11 @@ defmodule Consul.KV do
   Returns:
     A dictionary created recursively from the kv store.
   """
-  def tree(key, datacenter \\ nil), do: _tree(key, %{recurse: nil, dc: datacenter})
-  defp _tree(key, args) do
+  def tree(key), do: tree(key, %{})
+  def tree(key, datacenter) when is_binary(datacenter), do: tree(key, %{dc: datacenter})
+  def tree(key, args) do
+    args = Dict.put(args, :recurse, nil)
+
     prefix = key <> "/"
     kv_endpoint(key)
     |> Consul.get_json(args)
