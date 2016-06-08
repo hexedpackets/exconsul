@@ -9,6 +9,28 @@ defmodule Consul.KV do
   end
 
   @doc """
+  Retrieves a key from Cosnul.
+  """
+  def get(key, args \\ %{}) do
+    key |> kv_endpoint |> Consul.get(args)
+  end
+
+  @doc """
+  Gets a key in raw format and returns the value.
+  """
+  def get_raw(key, args \\ %{}) do
+    get(key, Dict.put(args, :raw, nil))
+  end
+
+  @doc """
+  Gets a key containing newline-deliminated values, splitting them into a list.
+  """
+  def get_list(key, args \\ %{}) do
+    get_raw(key, args)
+    |> String.split("\n")
+  end
+
+  @doc """
   Deletes a key.
   """
   def delete(key) do

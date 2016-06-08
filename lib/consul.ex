@@ -37,9 +37,9 @@ defmodule Consul do
   end
 
   def get(url), do: get(url, %{})
-  def get(url, args = %{dc: nil}), do: get(url, Dict.delete(args, :dc))
   def get(url, args) do
-    %HTTPoison.Response{body: body} = url <> "?" <> URI.encode_query(args)
+    args = args_to_query(args)
+    %HTTPoison.Response{body: body} = url <> "?" <> args
     |> HTTPoison.get!
     body
   end
@@ -72,6 +72,7 @@ defmodule Consul do
   Takes a dictionary of query arguments, adds in an authentication token if configured,
   and encodes everything as a URI query.
   """
+  def args_to_query(args = %{dc: nil}), do: args |> Dict.delete(:dc) |> args_to_query
   def args_to_query(args) do
     token = case Application.get_env(:consul, :token) do
       nil -> %{}
