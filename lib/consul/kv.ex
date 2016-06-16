@@ -190,6 +190,8 @@ defmodule Consul.KV do
   end
 
 
-  # Formats a Consul key and remote server into the full URL.
+  @doc """
+  Formats a Consul key and remote server into the full URL.
+  """
   def kv_endpoint(key), do: [Consul.base_uri, "kv", key] |> Path.join
 end
