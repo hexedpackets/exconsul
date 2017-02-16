@@ -19,7 +19,7 @@ defmodule Consul.KV do
   Gets a key in raw format and returns the value.
   """
   def get_raw(key, args \\ %{}) do
-    get(key, Dict.put(args, :raw, nil))
+    get(key, Map.put(args, :raw, nil))
   end
 
   @doc """
@@ -68,7 +68,7 @@ defmodule Consul.KV do
   def get_conf(key, :recurse), do: get_conf(key, :recurse, nil)
 
   def get_conf(key, datacenter) do
-    kv_endpoint(key) |> _get_conf(key, %{dc: datacenter}) |> Dict.values |> List.first
+    kv_endpoint(key) |> _get_conf(key, %{dc: datacenter}) |> Map.values |> List.first
   end
 
   def get_conf(key, :recurse, datacenter) do
@@ -131,7 +131,7 @@ defmodule Consul.KV do
     Logger.debug("Unable to append values at #{url}")
     {index, current_values} = check_key(url, args)
 
-    Set.union(Enum.into(current_values, HashSet.new), Enum.into(values, HashSet.new))
+    MapSet.union(Enum.into(current_values, MapSet.new), Enum.into(values, MapSet.new))
     |> _append(url, args, index)
   end
 
@@ -168,7 +168,7 @@ defmodule Consul.KV do
   def tree(key), do: tree(key, %{})
   def tree(key, datacenter) when is_binary(datacenter), do: tree(key, %{dc: datacenter})
   def tree(key, args) do
-    args = Dict.put(args, :recurse, nil)
+    args = Map.put(args, :recurse, nil)
 
     prefix = key <> "/"
     kv_endpoint(key)
@@ -184,7 +184,7 @@ defmodule Consul.KV do
   def keys(prefix), do: keys(prefix, %{})
   def keys(prefix, sep) when is_binary(sep), do: keys(prefix, %{seperator: sep})
   def keys(prefix, args) do
-    args = Dict.put(args, :keys, nil)
+    args = Map.put(args, :keys, nil)
     kv_endpoint(prefix) <> "/"
     |> Consul.get_json(args)
   end

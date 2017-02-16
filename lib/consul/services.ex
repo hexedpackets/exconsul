@@ -5,7 +5,7 @@ defmodule Consul.Services do
   @doc """
   Returns all available services in the Consul datacenter.
   """
-  def list(datacenter \\ nil), do: Consul.services(datacenter) |> Dict.keys
+  def list(datacenter \\ nil), do: Consul.services(datacenter) |> Map.keys
 
   @doc """
   Returns information about a service. The health endpoint is used as it returns much more detailed information

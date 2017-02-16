@@ -6,16 +6,16 @@ defmodule Consul.Mixfile do
   def project do
     [app: :consul,
      version: @version,
-     elixir: "~> 1.0",
-     deps: deps,
+     elixir: "~> 1.4",
+     deps: deps(),
      name: "Consul",
      docs: [readme: "README.md", main: "README",
             source_ref: "v#{@version}",
             source_url: "https://github.com/hexedpackets/exconsul"],
 
      # Hex
-     description: description,
-     package: package]
+     description: description(),
+     package: package()]
   end
 
   def application do
@@ -24,8 +24,8 @@ defmodule Consul.Mixfile do
 
   defp deps do
     [
-      {:poison, "~> 1.2"},
-      {:httpoison, "~> 0.5"}
+      {:poison, "~> 2.2"},
+      {:httpoison, "~> 0.10"}
     ]
   end
 

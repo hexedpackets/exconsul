@@ -6,7 +6,7 @@ defmodule Consul do
   def server, do: Application.get_env(:consul, :server) || "http://localhost:8500"
   def datacenter, do: Application.get_env(:consul, :datacenter) || "dc1"
   def api_version, do: @api_version
-  def base_uri, do: server <> "/" <> api_version
+  def base_uri, do: server() <> "/" <> api_version()
 
   defp catalog_uri(item), do: Consul.base_uri <> "/catalog/" <> item
 
@@ -22,7 +22,7 @@ defmodule Consul do
   def nodes(dc \\ nil), do: catalog_uri("nodes") |> get_json(%{dc: dc})
 
   @doc """
-  List all known services in a given datacenter. The result is a Dict keyed on
+  List all known services in a given datacenter. The result is a Map keyed on
   service name, and each value is a list of tags for that service.
   """
   def services(dc \\ nil), do: catalog_uri("services") |> get_json(%{dc: dc})
@@ -72,13 +72,13 @@ defmodule Consul do
   Takes a dictionary of query arguments, adds in an authentication token if configured,
   and encodes everything as a URI query.
   """
-  def args_to_query(args = %{dc: nil}), do: args |> Dict.delete(:dc) |> args_to_query
+  def args_to_query(args = %{dc: nil}), do: args |> Map.delete(:dc) |> args_to_query
   def args_to_query(args) do
     token = case Application.get_env(:consul, :token) do
       nil -> %{}
       token -> %{token: token}
     end
-    args |> Dict.merge(token) |> URI.encode_query
+    args |> Map.merge(token) |> URI.encode_query
   end
 
   @doc """

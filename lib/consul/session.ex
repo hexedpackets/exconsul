@@ -10,17 +10,17 @@ defmodule Consul.Session do
   def create(name, ttl, behaviour), do: create(%{"Name" => name, "TTL" => ttl, "Behavior" => behaviour})
   def create(request = %{}), do: Poison.encode!(request) |> create
   def create(request) do
-    endpoint <> "/create"
+    endpoint() <> "/create"
     |> Consul.put(request)
     |> Consul.decode_body
-    |> Dict.get("ID")
+    |> Map.get("ID")
   end
 
   @doc """
   Destroys a given session.
   """
   def destroy(session) do
-    endpoint <> "/destroy/" <> session
+    endpoint() <> "/destroy/" <> session
     |> Consul.put
   end
 
@@ -28,7 +28,7 @@ defmodule Consul.Session do
   Queries a given session.
   """
   def info(session) do
-    endpoint <> "/info/" <> session
+    endpoint() <> "/info/" <> session
     |> Consul.get
     |> Consul.decode_body
   end
@@ -37,7 +37,7 @@ defmodule Consul.Session do
   Lists sessions belonging to a node.
   """
   def node(node) do
-    endpoint <> "/node/" <> node
+    endpoint() <> "/node/" <> node
     |> Consul.get
     |> Consul.decode_body
   end
@@ -46,7 +46,7 @@ defmodule Consul.Session do
   Lists all active sessions.
   """
   def list do
-    endpoint <> "/list"
+    endpoint() <> "/list"
     |> Consul.get
     |> Consul.decode_body
   end
@@ -55,7 +55,7 @@ defmodule Consul.Session do
   Renews a TTL-based session.
   """
   def renew(session) do
-    endpoint <> "/renew/" <> session
+    endpoint() <> "/renew/" <> session
     |> Consul.put
     |> Consul.decode_body
   end

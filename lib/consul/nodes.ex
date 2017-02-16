@@ -12,14 +12,14 @@ defmodule Consul.Nodes do
   def address(node), do: node_url(node) |> _address(%{})
   def address(node, datacenter), do: node_url(node) |> _address(%{dc: datacenter})
   defp _address(url, opts) do
-    url |> Consul.get_json(opts) |> Dict.get("Node") |> Dict.get("Address")
+    url |> Consul.get_json(opts) |> Map.get("Node") |> Map.get("Address")
   end
 
   def info(node, datacenter \\ nil) do
     health_data = health(node, datacenter)
     node_url(node)
     |> Consul.get_json(%{dc: datacenter})
-    |> Dict.put("Health", health_data)
+    |> Map.put("Health", health_data)
   end
 
   @doc """

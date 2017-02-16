@@ -11,7 +11,7 @@ defmodule Consul.Agent do
   running multiple times on the agent with different IDs.
   """
   def service_ids(service) do
-    services
+    services()
     |> Stream.filter(fn({_id, %{"Service" => name}}) -> name == service end)
     |> Enum.map(fn({id, _}) -> id end)
   end
@@ -20,7 +20,7 @@ defmodule Consul.Agent do
   Finds all services running on this agent.
   """
   def services do
-    base_url <> "/services"
+    base_url() <> "/services"
     |> Consul.get_json
   end
 
@@ -48,7 +48,7 @@ defmodule Consul.Agent do
     |> Consul.put("", %{enable: false})
   end
 
-  defp base_url, do: Consul.base_uri <> "/agent"
-  defp service_url, do: base_url <> "/service"
-  defp maintenance_url(service), do: service_url <> "/maintenance/" <> service
+  defp base_url, do: Consul.base_uri() <> "/agent"
+  defp service_url, do: base_url() <> "/service"
+  defp maintenance_url(service), do: service_url() <> "/maintenance/" <> service
 end
