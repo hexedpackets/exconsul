@@ -3,10 +3,23 @@ defmodule Consul do
 
   @api_version "v1"
 
-  def server, do: Application.get_env(:consul, :server) || "http://localhost:8500"
+  def server do
+    case Application.get_env(:consul, :server, "http://localhost:8500") do
+      {:system, name} -> System.get_env(name)
+      val -> val
+    end
+  end
   def datacenter, do: Application.get_env(:consul, :datacenter) || "dc1"
   def api_version, do: @api_version
   def base_uri, do: server() <> "/" <> api_version()
+  def token_arg do
+    case Application.get_env(:consul, :token) do
+      nil -> %{}
+      "" -> %{}
+      {:system, name} -> %{token: System.get_env(name)}
+      val -> %{token: val}
+    end
+  end
 
   defp catalog_uri(item), do: Consul.base_uri <> "/catalog/" <> item
 
@@ -74,11 +87,7 @@ defmodule Consul do
   """
   def args_to_query(args = %{dc: nil}), do: args |> Map.delete(:dc) |> args_to_query
   def args_to_query(args) do
-    token = case Application.get_env(:consul, :token) do
-      nil -> %{}
-      token -> %{token: token}
-    end
-    args |> Map.merge(token) |> URI.encode_query
+    args |> Map.merge(token_arg()) |> URI.encode_query
   end
 
   @doc """
