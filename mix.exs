@@ -24,7 +24,7 @@ defmodule Consul.Mixfile do
 
   defp deps do
     [
-      {:poison, "~> 2.2"},
+      {:poison, "~> 3.0"},
       {:httpoison, "~> 0.10"}
     ]
   end
