@@ -87,7 +87,7 @@ defmodule Consul do
   """
   def args_to_query(args = %{dc: nil}), do: args |> Map.delete(:dc) |> args_to_query
   def args_to_query(args) do
-    args |> Map.merge(token_arg()) |> URI.encode_query
+    args |> Enum.into(%{}) |> Map.merge(token_arg()) |> URI.encode_query
   end
 
   @doc """
